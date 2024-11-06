@@ -3,6 +3,7 @@
 
 # Environment variables
 /.env
+.env
 
 # WebStorm project files
 /.idea/
