@@ -18,14 +18,15 @@ export const getCategories = async (req, res) => {
 export const getCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const idNumber = Number(id);
-    if (isNaN(idNumber)) {
+    const validID = validateID(id);
+
+    if (!validID) {
       return res.status(400).json({ error: "Invalid ID parameter!" });
     }
 
     const category = await prisma.category.findUnique({
       where: {
-        id: idNumber,
+        id: validID,
       },
     });
     if (!category) {
@@ -68,28 +69,35 @@ export const createCategory = async (req, res) => {
 export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const idNumber = Number(id);
+    const validID = validateID(id);
 
-    if (isNaN(idNumber)) {
+    if (!validID) {
       return res.status(400).json({ error: "Invalid ID parameter!" });
     }
 
-    const category = await prisma.category.findUnique({
-      where: {
-        id: idNumber,
-      },
-    });
-    if (!category) {
+    if (
+      !(await prisma.category.findUnique({
+        where: {
+          id: validID,
+        },
+      }))
+    ) {
       return res.status(404).json({ error: " Category was not found!" });
+    } else {
+      await prisma.category.delete({
+        where: {
+          id: validID,
+        },
+      });
+      res.sendStatus(204);
     }
-    await prisma.category.delete({
-      where: {
-        id: idNumber,
-      },
-    });
-    res.sendStatus(204);
   } catch (e) {
     console.log(`error: ${e}`);
     return res.status(500).json({ error: `${e.message}` });
   }
 };
+
+function validateID(id) {
+  const idNumber = Number(id);
+  return isNaN(idNumber) ? null : idNumber;
+}
