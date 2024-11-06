@@ -64,3 +64,32 @@ export const createCategory = async (req, res) => {
     return res.status(500).json({ error: e.message });
   }
 };
+
+export const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const idNumber = Number(id);
+
+    if (isNaN(idNumber)) {
+      return res.status(400).json({ error: "Invalid ID parameter!" });
+    }
+
+    const category = await prisma.category.findUnique({
+      where: {
+        id: idNumber,
+      },
+    });
+    if (!category) {
+      return res.status(404).json({ error: " Category was not found!" });
+    }
+    await prisma.category.delete({
+      where: {
+        id: idNumber,
+      },
+    });
+    res.sendStatus(204);
+  } catch (e) {
+    console.log(`error: ${e}`);
+    return res.status(500).json({ error: `${e.message}` });
+  }
+};
