@@ -10,7 +10,31 @@ export const getCategories = async (req, res) => {
     }
     return res.status(201).json(categories);
   } catch (e) {
+    console.log(`error: ${e}`);
     return res.status(500).json({ error: e.message });
+  }
+};
+
+export const getCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const idNumber = Number(id);
+    if (isNaN(idNumber)) {
+      return res.status(400).json({ error: "Invalid ID parameter!" });
+    }
+
+    const category = await prisma.category.findUnique({
+      where: {
+        id: idNumber,
+      },
+    });
+    if (!category) {
+      return res.status(404).json({ error: " Category was not found!" });
+    }
+    return res.status(201).json(category);
+  } catch (e) {
+    console.log(`error: ${e}`);
+    return res.status(500).json({ error: `${e.message}` });
   }
 };
 
@@ -36,6 +60,7 @@ export const createCategory = async (req, res) => {
     });
     return res.status(201).json(newCategory);
   } catch (e) {
+    console.log(`error: ${e}`);
     return res.status(500).json({ error: e.message });
   }
 };
