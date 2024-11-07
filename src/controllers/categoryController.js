@@ -66,6 +66,43 @@ export const createCategory = async (req, res) => {
   }
 };
 
+export const updateCategory = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const validID = validateID(id);
+    const newCategoryName = req.body.name;
+
+    if (!validID) {
+      return res.status(400).json({ error: "Invalid ID parameter!" });
+    }
+    if (!newCategoryName) {
+      return res.status(400).json({ error: "Category must have a title!" });
+    }
+    if (
+      !(await prisma.category.findUnique({
+        where: {
+          id: validID,
+        },
+      }))
+    ) {
+      return res.status(404).json({ error: " Category was not found!" });
+    }
+
+    const updatedCategory = await prisma.category.update({
+      where: {
+        id: validID,
+      },
+      data: {
+        name: newCategoryName,
+      },
+    });
+    return res.status(200).json(updatedCategory);
+  } catch (e) {
+    console.log(`error: ${e}`);
+    return res.status(500).json({ error: e.message });
+  }
+};
+
 export const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
