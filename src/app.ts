@@ -5,7 +5,7 @@ import createHttpError, { isHttpError } from "http-errors";
 const app = express();
 
 app.use(express.json());
-app.use("/", categoriesRoutes);
+app.use("/api/categories", categoriesRoutes);
 app.get("/", (req, res) => {
   res.send({
     message: "Hello World!",
