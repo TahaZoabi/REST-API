@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
+import {
+  CreateUpdateCategoryBody,
+  UpdateCategoryParams,
+} from "../lib/interface";
 
 const prisma = new PrismaClient();
 
@@ -41,7 +45,11 @@ export const getCategory: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const createCategory: RequestHandler = async (req, res, next) => {
+export const createCategory: RequestHandler<
+  {},
+  {},
+  CreateUpdateCategoryBody
+> = async (req, res, next) => {
   try {
     const categoryName = req.body.name;
 
@@ -68,9 +76,13 @@ export const createCategory: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const updateCategory: RequestHandler = async (req, res, next) => {
+export const updateCategory: RequestHandler<
+  UpdateCategoryParams,
+  {},
+  CreateUpdateCategoryBody
+> = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const { id } = req.params;
     const validID = validateID(id);
     const newCategoryName = req.body.name;
 
