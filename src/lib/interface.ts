@@ -1,7 +1,7 @@
-export interface CreateUpdateCategoryBody {
+export interface CategoryBody {
   name: string;
 }
 
-export interface UpdateCategoryParams {
+export interface CategoryParams {
   id: string;
 }

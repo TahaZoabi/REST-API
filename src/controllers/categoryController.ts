@@ -1,10 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response } from "express";
 import createHttpError from "http-errors";
-import {
-  CreateUpdateCategoryBody,
-  UpdateCategoryParams,
-} from "../lib/interface";
+import { CategoryBody, CategoryParams } from "../lib/interface";
 
 const prisma = new PrismaClient();
 
@@ -21,14 +18,13 @@ export const getCategories: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getCategory: RequestHandler = async (req, res, next) => {
+export const getCategory: RequestHandler<CategoryParams> = async (
+  req,
+  res,
+  next,
+) => {
   try {
-    const { id } = req.params;
-    const validID = validateID(id);
-
-    if (!validID) {
-      throw createHttpError(400, "Invalid Category ID");
-    }
+    const validID = getAndValidateId(req, res);
 
     const category = await prisma.category.findUnique({
       where: {
@@ -45,11 +41,11 @@ export const getCategory: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const createCategory: RequestHandler<
-  {},
-  {},
-  CreateUpdateCategoryBody
-> = async (req, res, next) => {
+export const createCategory: RequestHandler<{}, {}, CategoryBody> = async (
+  req,
+  res,
+  next,
+) => {
   try {
     const categoryName = req.body.name;
 
@@ -77,18 +73,14 @@ export const createCategory: RequestHandler<
 };
 
 export const updateCategory: RequestHandler<
-  UpdateCategoryParams,
+  CategoryParams,
   {},
-  CreateUpdateCategoryBody
+  CategoryBody
 > = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const validID = validateID(id);
+    const validID = getAndValidateId(req, res);
     const newCategoryName = req.body.name;
 
-    if (!validID) {
-      throw createHttpError(400, "Invalid Category ID");
-    }
     if (!newCategoryName) {
       throw createHttpError(400, "Category must have a title");
     }
@@ -117,14 +109,13 @@ export const updateCategory: RequestHandler<
   }
 };
 
-export const deleteCategory: RequestHandler = async (req, res, next) => {
+export const deleteCategory: RequestHandler<CategoryParams> = async (
+  req,
+  res,
+  next,
+) => {
   try {
-    const { id } = req.params;
-    const validID = validateID(id);
-
-    if (!validID) {
-      throw createHttpError(400, "Invalid Category ID");
-    }
+    const validID = getAndValidateId(req, res);
 
     if (
       !(await prisma.category.findUnique({
@@ -148,7 +139,11 @@ export const deleteCategory: RequestHandler = async (req, res, next) => {
   }
 };
 
-function validateID(id: string) {
+function getAndValidateId(req: Request<CategoryParams>, res: Response) {
+  const { id } = req.params;
   const idNumber = Number(id);
-  return isNaN(idNumber) ? undefined : idNumber;
+  if (isNaN(idNumber)) {
+    throw createHttpError(400, "Invalid Category ID");
+  }
+  return idNumber;
 }
