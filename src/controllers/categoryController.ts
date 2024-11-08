@@ -32,27 +32,13 @@ export const getCategory: RequestHandler<CategoryParams> = async (
   }
 };
 
-export const createCategory: RequestHandler<{}, {}, CategoryBody> = async (
-  req,
-  res,
-  next,
-) => {
+export const createCategory: RequestHandler<
+  CategoryParams,
+  {},
+  CategoryBody
+> = async (req, res, next) => {
   try {
-    const categoryName = req.body.name;
-
-    if (!categoryName) {
-      throw createHttpError(400, "Category must have a title");
-    }
-
-    const existingName = await prisma.category.findUnique({
-      where: { name: categoryName },
-    });
-
-    if (existingName) {
-      res
-        .status(409)
-        .json({ error: `${categoryName} already exists in the categories` });
-    }
+    const categoryName = await validateCategoryName(req, res);
     const newCategory = await prisma.category.create({
       data: { name: categoryName },
     });
@@ -71,11 +57,8 @@ export const updateCategory: RequestHandler<
   try {
     const category = await validateCategory(req, res);
     const { id } = category;
-    const updatedName = req.body.name;
+    const updatedName = await validateCategoryName(req, res);
 
-    if (!updatedName) {
-      throw createHttpError(400, "Category must have a title");
-    }
     const updatedCategory = await prisma.category.update({
       where: {
         id,
@@ -118,6 +101,29 @@ function getAndValidateId(req: Request<CategoryParams>, res: Response) {
     throw createHttpError(400, "Invalid Category ID");
   }
   return idNumber;
+}
+
+async function validateCategoryName(
+  req: Request<CategoryParams>,
+  res: Response,
+) {
+  const categoryName = req.body.name;
+
+  if (!categoryName) {
+    throw createHttpError(400, "Category must have a title");
+  }
+
+  const existingName = await prisma.category.findUnique({
+    where: { name: categoryName },
+  });
+
+  if (existingName) {
+    res
+      .status(409)
+      .json({ error: `${categoryName} already exists in the categories` });
+  }
+
+  return categoryName;
 }
 
 async function validateCategory(req: Request<CategoryParams>, res: Response) {
