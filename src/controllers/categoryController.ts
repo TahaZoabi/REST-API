@@ -70,19 +70,18 @@ export const updateCategory: RequestHandler<
 > = async (req, res, next) => {
   try {
     const category = await validateCategory(req, res);
-    const validID = category.id;
-    const newCategoryName = req.body.name;
+    const { id } = category;
+    const updatedName = req.body.name;
 
-    if (!newCategoryName) {
+    if (!updatedName) {
       throw createHttpError(400, "Category must have a title");
     }
-
     const updatedCategory = await prisma.category.update({
       where: {
-        id: validID,
+        id,
       },
       data: {
-        name: newCategoryName,
+        name: updatedName,
       },
     });
     res.status(200).json(updatedCategory);
@@ -99,10 +98,10 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
 ) => {
   try {
     const category = await validateCategory(req, res);
-    const validID = category.id;
+    const { id } = category;
     await prisma.category.delete({
       where: {
-        id: validID,
+        id,
       },
     });
     res.sendStatus(204);
@@ -132,5 +131,6 @@ async function validateCategory(req: Request<CategoryParams>, res: Response) {
   if (!category) {
     throw createHttpError(404, "Category not found");
   }
+
   return category;
 }
