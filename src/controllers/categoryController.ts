@@ -24,16 +24,7 @@ export const getCategory: RequestHandler<CategoryParams> = async (
   next,
 ) => {
   try {
-    const validID = getAndValidateId(req, res);
-
-    const category = await prisma.category.findUnique({
-      where: {
-        id: validID,
-      },
-    });
-    if (!category) {
-      throw createHttpError(404, "Category not found");
-    }
+    const category = await validateCategory(req, res);
     res.status(201).json(category);
   } catch (e) {
     console.log(`error: ${e}`);
@@ -78,20 +69,12 @@ export const updateCategory: RequestHandler<
   CategoryBody
 > = async (req, res, next) => {
   try {
-    const validID = getAndValidateId(req, res);
+    const category = await validateCategory(req, res);
+    const validID = category.id;
     const newCategoryName = req.body.name;
 
     if (!newCategoryName) {
       throw createHttpError(400, "Category must have a title");
-    }
-    if (
-      !(await prisma.category.findUnique({
-        where: {
-          id: validID,
-        },
-      }))
-    ) {
-      throw createHttpError(404, "Category not found");
     }
 
     const updatedCategory = await prisma.category.update({
@@ -115,24 +98,14 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
   next,
 ) => {
   try {
-    const validID = getAndValidateId(req, res);
-
-    if (
-      !(await prisma.category.findUnique({
-        where: {
-          id: validID,
-        },
-      }))
-    ) {
-      throw createHttpError(404, "Category not found");
-    } else {
-      await prisma.category.delete({
-        where: {
-          id: validID,
-        },
-      });
-      res.sendStatus(204);
-    }
+    const category = await validateCategory(req, res);
+    const validID = category.id;
+    await prisma.category.delete({
+      where: {
+        id: validID,
+      },
+    });
+    res.sendStatus(204);
   } catch (e) {
     console.log(`error: ${e}`);
     next(e);
@@ -146,4 +119,18 @@ function getAndValidateId(req: Request<CategoryParams>, res: Response) {
     throw createHttpError(400, "Invalid Category ID");
   }
   return idNumber;
+}
+
+async function validateCategory(req: Request<CategoryParams>, res: Response) {
+  const validID = getAndValidateId(req, res);
+
+  const category = await prisma.category.findUnique({
+    where: {
+      id: validID,
+    },
+  });
+  if (!category) {
+    throw createHttpError(404, "Category not found");
+  }
+  return category;
 }
