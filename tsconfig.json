@@ -17,8 +17,8 @@
     "strict": true,                              /* Enable all strict type checking options */
     "noImplicitAny": true,                       /* Report an error on expressions with an 'any' type */
     "strictNullChecks": true,                    /* Enable strict checking of null and undefined */
-    //"noUnusedLocals": true,                      /* Report unused local variables */
-    //"noUnusedParameters": true,                  /* Report unused function parameters */
+    "noUnusedLocals": true,                      /* Report unused local variables */
+    "noUnusedParameters": true,                  /* Report unused function parameters */
     "noImplicitReturns": true,                   /* Ensure every function has a return value or an explicit `void` */
     "noFallthroughCasesInSwitch": true,          /* Ensure no fallthrough cases in switch statements */
 
