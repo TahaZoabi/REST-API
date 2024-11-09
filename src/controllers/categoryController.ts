@@ -8,7 +8,7 @@ export const getCategories: RequestHandler = async (_, res, next) => {
   try {
     const categories = await prisma.category.findMany();
     if (!categories) {
-      res.status(404).json({ message: "Categories were not found" });
+      res.status(404).json({ error: "Categories were not found" });
     }
     res.status(201).json(categories);
   } catch (e) {
@@ -20,9 +20,9 @@ export const getCategories: RequestHandler = async (_, res, next) => {
 export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
   try {
     const { id } = req.params;
-    const validateId = getAndValidateId(id);
-    if (!validateId.success) {
-      res.status(400).json({ message: validateId.message });
+    const validId = validateCategoryId(id);
+    if (!validId.success) {
+      res.status(400).json({ error: validId.message });
     }
 
     const category = await prisma.category.findUnique({
@@ -32,7 +32,7 @@ export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
     });
 
     if (!category) {
-      res.status(404).json({ message: "Category not found" });
+      res.status(404).json({ error: "Category not found" });
     }
     res.status(201).json(category);
   } catch (e) {
@@ -49,11 +49,11 @@ export const createCategory: RequestHandler<
     const { name } = req.body;
     const validateName = await validateCategoryName(name);
     if (!validateName.success) {
-      res.status(400).json({ message: validateName.message });
+      res.status(400).json({ error: validateName.message });
     }
     const validateExistingName = await validateCategoryName(req.body.name);
     if (!validateExistingName.success) {
-      res.status(409).json({ message: validateExistingName.message });
+      res.status(409).json({ error: validateExistingName.message });
     }
     const newCategory = await prisma.category.create({
       data: { name },
@@ -71,14 +71,14 @@ export const updateCategory: RequestHandler<
 > = async (req, res) => {
   try {
     const { id } = req.params;
-    const validateId = getAndValidateId(id);
+    const validateId = validateCategoryId(id);
     if (!validateId.success) {
-      res.status(400).json({ message: validateId.message });
+      res.status(400).json({ error: validateId.message });
     }
 
-    const validateExistingName = await validateCategoryName(req.body.name);
-    if (!validateExistingName.success) {
-      res.status(409).json({ message: validateExistingName.message });
+    const validateName = await validateCategoryName(req.body.name);
+    if (!validateName.success) {
+      res.status(409).json({ error: validateName.message });
     }
     const category = await prisma.category.findUnique({
       where: {
@@ -87,15 +87,10 @@ export const updateCategory: RequestHandler<
     });
 
     if (!category) {
-      res.status(404).json({ message: "Category not found" });
+      res.status(404).json({ error: "Category not found" });
     }
 
     const { name } = req.body;
-    const validateName = await validateCategoryName(name);
-    if (!validateName.success) {
-      res.status(400).json({ message: validateName.message });
-    }
-
     const updatedCategory = await prisma.category.update({
       where: {
         id: parseInt(id),
@@ -116,9 +111,9 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
 ) => {
   try {
     const { id } = req.params;
-    const validateId = getAndValidateId(id);
-    if (!validateId.success) {
-      res.status(400).json({ message: validateId.message });
+    const validId = validateCategoryId(id);
+    if (!validId.success) {
+      res.status(400).json({ error: validId.message });
     }
 
     const category = await prisma.category.findUnique({
@@ -128,7 +123,7 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
     });
 
     if (!category) {
-      res.status(404).json({ message: "Category not found" });
+      res.status(404).json({ error: "Category not found" });
     }
     await prisma.category.delete({
       where: {
@@ -141,7 +136,7 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
   }
 };
 
-function getAndValidateId(id: string) {
+function validateCategoryId(id: string) {
   const idNumber = Number(id);
   if (isNaN(idNumber)) {
     return { success: false, message: "Invalid Category ID" };
