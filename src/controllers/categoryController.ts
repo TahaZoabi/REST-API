@@ -20,9 +20,9 @@ export const getCategories: RequestHandler = async (_, res, next) => {
 export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
   try {
     const { id } = req.params;
-    const validId = validateCategoryId(id);
-    if (!validId.success) {
-      res.status(400).json({ error: validId.message });
+    const validateId = validateCategoryId(id);
+    if (!validateId.success) {
+      res.status(400).json({ error: validateId.message });
     }
 
     const category = await prisma.category.findUnique({
@@ -50,10 +50,6 @@ export const createCategory: RequestHandler<
     const validateName = await validateCategoryName(name);
     if (!validateName.success) {
       res.status(400).json({ error: validateName.message });
-    }
-    const validateExistingName = await validateCategoryName(req.body.name);
-    if (!validateExistingName.success) {
-      res.status(409).json({ error: validateExistingName.message });
     }
     const newCategory = await prisma.category.create({
       data: { name },
@@ -111,9 +107,9 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
 ) => {
   try {
     const { id } = req.params;
-    const validId = validateCategoryId(id);
-    if (!validId.success) {
-      res.status(400).json({ error: validId.message });
+    const validateId = validateCategoryId(id);
+    if (!validateId.success) {
+      res.status(400).json({ error: validateId.message });
     }
 
     const category = await prisma.category.findUnique({
