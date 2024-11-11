@@ -6,7 +6,19 @@ const prisma = new PrismaClient();
 
 export const getProducts: RequestHandler = async (_, res) => {
   try {
-    const products = await prisma.product.findMany();
+    const products = await prisma.product.findMany({
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      omit: {
+        categoryId: true,
+      },
+    });
     if (!products) {
       res.status(404).json({ error: "No products were found" });
     }
