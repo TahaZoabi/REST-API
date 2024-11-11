@@ -30,7 +30,7 @@ export const getProducts: RequestHandler = async (_, res) => {
 
 export const getProduct: RequestHandler = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid Category ID" });
     }
@@ -84,7 +84,7 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
 
 export const updateProduct: RequestHandler = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid Category ID" });
     }
@@ -124,7 +124,7 @@ export const deleteProduct: RequestHandler<ProductParams> = async (
   res,
 ) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid Category ID" });
     }

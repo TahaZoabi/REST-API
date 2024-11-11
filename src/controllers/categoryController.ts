@@ -30,7 +30,7 @@ export const getCategories: RequestHandler = async (_, res, next) => {
 
 export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid Category ID" });
     }
@@ -86,7 +86,7 @@ export const updateCategory: RequestHandler<
   CategoryBody
 > = async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid Category ID" });
     }
@@ -125,7 +125,7 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
   res,
 ) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "Invalid Category ID" });
     }
