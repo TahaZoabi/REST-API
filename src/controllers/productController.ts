@@ -21,17 +21,21 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
   res,
 ) => {
   try {
-    const { name, price, quanity, categoryId } = req.body;
+    const { name, price, quanity, categoryId, description, isActive } =
+      req.body;
+    const validateFields = validateProductFields(req.body);
 
-    if (!name || !price || !quanity || !categoryId) {
-      res.status(400).json({ error: "required fields  missing " });
+    if (!validateFields.success) {
+      res.status(400).json({ error: validateFields.message });
     }
 
     const newProduct = await prisma.product.create({
       data: {
         name,
+        description,
         price,
         quanity,
+        isActive,
         categoryId,
       },
     });
@@ -80,4 +84,23 @@ function validateProductId(id: string) {
     return { success: false, message: "Invalid Category ID" };
   }
   return { success: true };
+}
+
+function validateProductFields({
+  name,
+  price,
+  quanity,
+  categoryId,
+}: ProductBody) {
+  if (!name) {
+    return { success: false, message: `name filed is required` };
+  } else if (!price) {
+    return { success: false, message: `price filed is required` };
+  } else if (!quanity) {
+    return { success: false, message: `quanity filed is required` };
+  } else if (!categoryId) {
+    return { success: false, message: `categoryId filed is required` };
+  } else {
+    return { success: true };
+  }
 }
