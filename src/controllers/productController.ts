@@ -34,7 +34,7 @@ export const getProduct: RequestHandler = async (req, res) => {
       res.status(404).json({ error: "Product was not found" });
     }
 
-    res.status(202).json(product);
+    res.status(200).json(product);
   } catch (e) {
     console.log(`error: ${e}`);
   }
@@ -64,6 +64,49 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
       },
     });
     res.status(201).json(newProduct);
+  } catch (e) {
+    console.log(`error: ${e}`);
+  }
+};
+
+export const updateProduct: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, price, isActive, description, quanity } = req.body;
+    const validateId = validateProductId(id);
+    if (!validateId.success) {
+      res.status(400).json({ error: validateId.message });
+    }
+    const validateFields = validateProductFields(req.body);
+
+    if (!validateFields.success) {
+      res.status(400).json({ error: validateFields.message });
+    }
+
+    const product = await prisma.product.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    if (!product) {
+      res.status(404).json({ error: "Product was not found" });
+    }
+
+    const updatedProduct = await prisma.product.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        name,
+        description,
+        price,
+        isActive,
+        quanity,
+      },
+    });
+
+    res.status(200).json(updatedProduct);
   } catch (e) {
     console.log(`error: ${e}`);
   }
