@@ -6,7 +6,18 @@ const prisma = new PrismaClient();
 
 export const getCategories: RequestHandler = async (_, res, next) => {
   try {
-    const categories = await prisma.category.findMany();
+    const categories = await prisma.category.findMany({
+      include: {
+        products: {
+          select: {
+            name: true,
+            price: true,
+            quanity: true,
+            isActive: true,
+          },
+        },
+      },
+    });
     if (!categories) {
       res.status(404).json({ error: "Categories were not found" });
     }
@@ -28,6 +39,16 @@ export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
     const category = await prisma.category.findUnique({
       where: {
         id: parseInt(id),
+      },
+      include: {
+        products: {
+          select: {
+            name: true,
+            price: true,
+            quanity: true,
+            isActive: true,
+          },
+        },
       },
     });
 
