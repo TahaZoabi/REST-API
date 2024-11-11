@@ -30,15 +30,14 @@ export const getCategories: RequestHandler = async (_, res, next) => {
 
 export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
   try {
-    const { id } = req.params;
-    const validateId = validateCategoryId(id);
-    if (!validateId.success) {
-      res.status(400).json({ error: validateId.message });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid Category ID" });
     }
 
     const category = await prisma.category.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
       include: {
         products: {
@@ -87,10 +86,9 @@ export const updateCategory: RequestHandler<
   CategoryBody
 > = async (req, res) => {
   try {
-    const { id } = req.params;
-    const validateId = validateCategoryId(id);
-    if (!validateId.success) {
-      res.status(400).json({ error: validateId.message });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid Category ID" });
     }
 
     const validateName = await validateCategoryName(req.body.name);
@@ -99,7 +97,7 @@ export const updateCategory: RequestHandler<
     }
     const category = await prisma.category.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 
@@ -110,7 +108,7 @@ export const updateCategory: RequestHandler<
     const { name } = req.body;
     const updatedCategory = await prisma.category.update({
       where: {
-        id: parseInt(id),
+        id,
       },
       data: {
         name,
@@ -127,15 +125,14 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
   res,
 ) => {
   try {
-    const { id } = req.params;
-    const validateId = validateCategoryId(id);
-    if (!validateId.success) {
-      res.status(400).json({ error: validateId.message });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid Category ID" });
     }
 
     const category = await prisma.category.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 
@@ -144,7 +141,7 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
     }
     await prisma.category.delete({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
     res.sendStatus(204);
@@ -152,14 +149,6 @@ export const deleteCategory: RequestHandler<CategoryParams> = async (
     console.log(`error: ${e}`);
   }
 };
-
-function validateCategoryId(id: string) {
-  const idNumber = Number(id);
-  if (isNaN(idNumber)) {
-    return { success: false, message: "Invalid Category ID" };
-  }
-  return { success: true };
-}
 
 async function validateCategoryName(categoryName: string) {
   if (!categoryName) {

@@ -30,15 +30,13 @@ export const getProducts: RequestHandler = async (_, res) => {
 
 export const getProduct: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
-    const validateId = validateProductId(id);
-    if (!validateId.success) {
-      res.status(400).json({ error: validateId.message });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid Category ID" });
     }
-
     const product = await prisma.product.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
       include: {
         category: {
@@ -86,12 +84,12 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
 
 export const updateProduct: RequestHandler = async (req, res) => {
   try {
-    const { id } = req.params;
-    const productData = req.body;
-    const validateId = validateProductId(id);
-    if (!validateId.success) {
-      res.status(400).json({ error: validateId.message });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid Category ID" });
     }
+    const productData = req.body;
+
     const validateFields = validateProductFields(req.body);
 
     if (!validateFields.success) {
@@ -100,7 +98,7 @@ export const updateProduct: RequestHandler = async (req, res) => {
 
     const product = await prisma.product.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 
@@ -110,7 +108,7 @@ export const updateProduct: RequestHandler = async (req, res) => {
 
     const updatedProduct = await prisma.product.update({
       where: {
-        id: parseInt(id),
+        id,
       },
       data: productData,
     });
@@ -126,26 +124,24 @@ export const deleteProduct: RequestHandler<ProductParams> = async (
   res,
 ) => {
   try {
-    const { id } = req.params;
-
-    const validateId = validateProductId(id);
-    if (!validateId.success) {
-      res.status(400).json({ error: validateId.message });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "Invalid Category ID" });
     }
 
     const product = await prisma.product.findUnique({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 
     if (!product) {
-      res.status(404).json({ error: "No products were found " });
+      res.status(404).json({ error: " Product was not found " });
     }
 
     await prisma.product.delete({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
     res.sendStatus(204);
@@ -153,14 +149,6 @@ export const deleteProduct: RequestHandler<ProductParams> = async (
     console.log(`error: ${e}`);
   }
 };
-
-function validateProductId(id: string) {
-  const idNumber = Number(id);
-  if (isNaN(idNumber)) {
-    return { success: false, message: "Invalid Category ID" };
-  }
-  return { success: true };
-}
 
 function validateProductFields({
   name,
