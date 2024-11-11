@@ -12,7 +12,7 @@ export const getCategories: RequestHandler = async (_, res, next) => {
           select: {
             name: true,
             price: true,
-            quanity: true,
+            quantity: true,
             isActive: true,
           },
         },
@@ -44,7 +44,7 @@ export const getCategory: RequestHandler<CategoryParams> = async (req, res) => {
           select: {
             name: true,
             price: true,
-            quanity: true,
+            quantity: true,
             isActive: true,
           },
         },

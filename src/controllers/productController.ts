@@ -153,15 +153,15 @@ export const deleteProduct: RequestHandler<ProductParams> = async (
 function validateProductFields({
   name,
   price,
-  quanity,
+  quantity,
   categoryId,
 }: ProductBody) {
   if (!name) {
     return { success: false, message: `name filed is required` };
   } else if (!price) {
     return { success: false, message: `price filed is required` };
-  } else if (!quanity) {
-    return { success: false, message: `quanity filed is required` };
+  } else if (!quantity) {
+    return { success: false, message: `quantity filed is required` };
   } else if (!categoryId) {
     return { success: false, message: `categoryId filed is required` };
   } else {

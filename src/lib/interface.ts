@@ -16,7 +16,7 @@ export interface ProductBody {
   description?: string;
   price: number;
   currency: string;
-  quanity: number;
+  quantity: number;
   isActive: boolean;
   categoryId: number;
 }
