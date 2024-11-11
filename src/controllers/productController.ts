@@ -40,6 +40,17 @@ export const getProduct: RequestHandler = async (req, res) => {
       where: {
         id: parseInt(id),
       },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      omit: {
+        categoryId: true,
+      },
     });
 
     if (!product) {
@@ -57,8 +68,7 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
   res,
 ) => {
   try {
-    const { name, price, quanity, categoryId, description, isActive } =
-      req.body;
+    const productData = req.body;
     const validateFields = validateProductFields(req.body);
 
     if (!validateFields.success) {
@@ -66,14 +76,7 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
     }
 
     const newProduct = await prisma.product.create({
-      data: {
-        name,
-        description,
-        price,
-        quanity,
-        isActive,
-        categoryId,
-      },
+      data: productData,
     });
     res.status(201).json(newProduct);
   } catch (e) {
@@ -84,7 +87,7 @@ export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
 export const updateProduct: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, isActive, description, quanity } = req.body;
+    const productData = req.body;
     const validateId = validateProductId(id);
     if (!validateId.success) {
       res.status(400).json({ error: validateId.message });
@@ -109,13 +112,7 @@ export const updateProduct: RequestHandler = async (req, res) => {
       where: {
         id: parseInt(id),
       },
-      data: {
-        name,
-        description,
-        price,
-        isActive,
-        quanity,
-      },
+      data: productData,
     });
 
     res.status(200).json(updatedProduct);
