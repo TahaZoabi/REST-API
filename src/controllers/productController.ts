@@ -61,6 +61,41 @@ export const getProduct: RequestHandler = async (req, res) => {
   }
 };
 
+export const getProductsByCategoryId: RequestHandler = async (req, res) => {
+  try {
+    const categoryId = parseInt(req.params.categoryId);
+    if (isNaN(categoryId)) {
+      console.log(categoryId);
+      res.status(400).json({ error: "Invalid Category ID" });
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        categoryId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      omit: {
+        categoryId: true,
+      },
+    });
+
+    if (products.length === 0) {
+      res.status(404).json({ error: "No products where found" });
+    }
+
+    res.status(200).json(products);
+  } catch (e) {
+    console.log(`error: ${e}`);
+  }
+};
+
 export const createProduct: RequestHandler<{}, {}, ProductBody> = async (
   req,
   res,
